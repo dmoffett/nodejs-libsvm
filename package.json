@@ -8,8 +8,8 @@
   },
   "repository": "",
   "keywords": [
-    "svm",
-    "libsvm"
+    "libsvm",
+    "svm"
   ],
   "author": "David B. Moffett, Alex Soustek",
   "license": "MIT"

@@ -1,0 +1,16 @@
+{
+  "name": "libsvm",
+  "version": "0.0.0",
+  "description": "Node Module that provides javascript api to libsvm.",
+  "main": "libsvm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "svm",
+    "libsvm"
+  ],
+  "author": "David B. Moffett, Alex Soustek",
+  "license": "MIT"
+}

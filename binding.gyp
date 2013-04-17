@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "libsvm",
-      "sources": [ "node_libsvm.cc" ]
+      "sources": [ "node_libsvm.cc", "svm.cpp" ]
     }
   ]
 }

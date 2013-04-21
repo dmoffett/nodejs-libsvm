@@ -27,35 +27,47 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-*/
-
 #define BUILDING_NODE_EXTENSION
-#include <node.h>
+    // #include <node.h>
 #include <v8.h>
 #include "svm.h"
+#include "node_defs.h"
 
-using namespace v8;
+    using namespace v8;
 
 Handle<Value> SvmTrain(const Arguments &args) {
   HandleScope scope;
 
-  if (args.Length() < 2) {
+  if(args.Length() < 2){
     ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
     return scope.Close(Undefined());
   }
+  
+  if(args[0]->IsObject() && args[1]->IsObject()){
+    v8::Local<v8::Object> prob = args[0]->ToObject();
 
-  return scope.Close(num);
+    // Checks for value and creates key for value.
+    ARG_CHECK_OBJECT_ATTR_NUMBER(prob, y);
+    v8::Local<v8::Value> y = prob->Get(y_key);
+    printf("y = %f\n", y->NumberValue());
+
+    ARG_CHECK_OBJECT_ATTR_ARRAY(prob, svm_node);
+    v8::Handle<v8::Array> nodes = v8::Handle<v8::Array>::Cast(prob->Get(svm_node_key));
+    int index, count = nodes->Length();
+    for(index = 0; index < count; index++){
+      printf("value: %d at %d\n", nodes->Get(index)->IntegerValue(), index);
+    }
+                                                 
+  } else {
+    ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
+    return scope.Close(Undefined());
+  }
+  
+  return scope.Close(Undefined());
 }
 
-void Init(Handle<Object> exports) {
-  exports->Set(String::NewSymbol("svm_train"),
-	       FunctionTemplate::New(SvmTrain)->GetFunction());
+void Init(Handle<Object> exports){
+  exports->Set(String::NewSymbol("svm_train"), FunctionTemplate::New(SvmTrain)->GetFunction());
 }
 
 NODE_MODULE(svm, Init)

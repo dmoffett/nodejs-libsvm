@@ -35,6 +35,37 @@
 
     using namespace v8;
 
+struct svm_train_data {
+  svm_problem *prob;
+  svm_paramter *param;
+  Persistent<Function> *callback;
+};
+
+void doSvmTrain(uv_work_t *req){
+  svm_train_data *td = (svm_train_data *)req->data;
+  svm_train(td->prob, td->param);
+}
+
+void afterSvmTrain(uv_work_t *req){
+  HandleScope scope;
+
+  svm_train_data *id = (my_struct *)req->data;
+
+  Handle<Value> argv[1];
+  argv[0] = Integer::New(r->rtn);
+
+  TryCatch try_catch;
+  td->callback->Call(Context::GetCurrent()->Global(), 1, argv);
+
+  // cleanup
+  td->callback.Dispose();
+  delete td;
+  delete req;
+
+  if (try_catch.HasCaught())
+    FatalException(try_catch);
+}
+
 Handle<Value> SvmTrain(const Arguments &args) {
   HandleScope scope;
 
@@ -57,7 +88,16 @@ Handle<Value> SvmTrain(const Arguments &args) {
     for(index = 0; index < count; index++){
       printf("value: %d at %d\n", nodes->Get(index)->IntegerValue(), index);
     }
-                                                 
+
+    // Start work in background 
+    uv_work_ *req = new uv_work_t;
+    svm_train_data *td = new svm_train_data;
+    req->data = td;
+    td->callback = Persistent<Function>::New(Local<Function>::Cast(args[0]));
+
+    uv_queue_work(uv_default_loop(), req, doSvmTrain, afterSvmTrain);
+    
+    
   } else {
     ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
     return scope.Close(Undefined());

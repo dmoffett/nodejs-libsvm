@@ -66,7 +66,8 @@ void afterSvmTrain(uv_work_t *req){
     FatalException(try_catch);
 }
 
-Handle<Value> SvmTrain(const Arguments &args) {
+
+bool node_svm::SVM::getHostname(const Arguments &args) const {
   HandleScope scope;
 
   if(args.Length() < 2){
